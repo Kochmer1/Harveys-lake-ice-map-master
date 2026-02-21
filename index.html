@@ -1,0 +1,47 @@
+    // -------------------------
+    // 2026 DATA (NEW GROUP)
+    // -------------------------
+    var feature_group_2026_feb15 = L.featureGroup({}).addTo(map_44109a39f42e768ec6b6fa4f2d69f401);
+
+    function makePopupHTML(wp, depth, dateStr, borderColor) {
+      return $(
+        `<div style="width: 100.0%; height: 100.0%;">
+          <div style="font-family: Arial, sans-serif; padding: 10px; border-radius: 8px;
+                      background-color: #f8f9fa; border: 2px solid ${borderColor}; width: 220px;">
+            <h4 style="margin: 0; color: ${borderColor};">Waypoint ${wp}</h4>
+            <hr style="border-top: 1px solid ${borderColor};">
+            <p style="margin: 5px 0;"><b>Ice Depth:</b> ${depth} inches</p>
+            <p style="margin: 5px 0;"><b>Collected:</b> ${dateStr}</p>
+          </div>
+        </div>`
+      )[0];
+    }
+
+    // Choose a distinct marker color for 2026 (purple works well & matches your example)
+    var icon_2026 = L.AwesomeMarkers.icon(
+      {"extraClasses":"fa-rotate-0","icon":"info-sign","iconColor":"white","markerColor":"purple","prefix":"glyphicon"}
+    );
+
+    // Your 2026 points (Feb 15, 2026)
+    var points_2026 = [
+      {wp: 1,  lat: 41.36536, lon: -76.05671, depth: 13.5},
+      {wp: 2,  lat: 41.36458, lon: -76.05599, depth: 13.5},
+      {wp: 3,  lat: 41.36403, lon: -76.05496, depth: 13.5},
+      {wp: 4,  lat: 41.36473, lon: -76.05352, depth: 13.5},
+      {wp: 5,  lat: 41.36655, lon: -76.05417, depth: 11.5},
+      {wp: 6,  lat: 41.36631, lon: -76.05347, depth: 11.5},
+      {wp: 7,  lat: 41.36587, lon: -76.05152, depth: 15.0},
+      {wp: 8,  lat: 41.36670, lon: -76.04930, depth: 13.5},
+      {wp: 9,  lat: 41.36759, lon: -76.05027, depth: 10.5},
+      {wp: 10, lat: 41.36845, lon: -76.05107, depth: 12.5},
+      {wp: 11, lat: 41.36843, lon: -76.04916, depth: 8.5}
+    ];
+
+    points_2026.forEach(function(p){
+      var m = L.marker([p.lat, p.lon], {}).addTo(feature_group_2026_feb15);
+      m.setIcon(icon_2026);
+
+      var popup = L.popup({"maxWidth": 250});
+      popup.setContent(makePopupHTML(p.wp, p.depth, "February 15, 2026", "#7a1fa2"));
+      m.bindPopup(popup);
+    });
