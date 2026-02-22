@@ -1,47 +1,212 @@
-    // -------------------------
-    // 2026 DATA (NEW GROUP)
-    // -------------------------
-    var feature_group_2026_feb15 = L.featureGroup({}).addTo(map_44109a39f42e768ec6b6fa4f2d69f401);
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Harveys Lake Ice Thickness Map – Master (2025–2026)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-    function makePopupHTML(wp, depth, dateStr, borderColor) {
-      return $(
-        `<div style="width: 100.0%; height: 100.0%;">
-          <div style="font-family: Arial, sans-serif; padding: 10px; border-radius: 8px;
-                      background-color: #f8f9fa; border: 2px solid ${borderColor}; width: 220px;">
-            <h4 style="margin: 0; color: ${borderColor};">Waypoint ${wp}</h4>
-            <hr style="border-top: 1px solid ${borderColor};">
-            <p style="margin: 5px 0;"><b>Ice Depth:</b> ${depth} inches</p>
-            <p style="margin: 5px 0;"><b>Collected:</b> ${dateStr}</p>
-          </div>
-        </div>`
-      )[0];
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Awesome Markers (same style as your 2025 Folium output) -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+
+  <style>
+    html, body { width:100%; height:100%; margin:0; padding:0; }
+    #map { position:absolute; top:0; bottom:0; left:0; right:0; }
+
+    .legend-box{
+      background: rgba(255,255,255,0.95);
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.15);
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      line-height: 18px;
+      min-width: 210px;
+    }
+    .legend-title{
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .legend-row{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin: 3px 0;
+    }
+    .dot{
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,0,0,.25);
+      display:inline-block;
+      flex: 0 0 auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+
+  <script>
+    // =========================
+    // MAP SETUP
+    // =========================
+    const map = L.map("map", {
+      center: [41.365, -76.054],
+      zoom: 14,
+      zoomControl: true,
+      preferCanvas: false
+    });
+
+    const osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: 'Data by &copy; <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.',
+      maxZoom: 19
+    }).addTo(map);
+
+    // =========================
+    // POPUP TEMPLATE (matches your 2025 card style)
+    // =========================
+    function popupHTML(wp, depth, dateStr, borderHex){
+      return `
+        <div style="font-family: Arial, sans-serif; padding: 10px; border-radius: 8px;
+                    background-color: #f8f9fa; border: 2px solid ${borderHex}; width: 220px;">
+          <h4 style="margin: 0; color: ${borderHex};">Waypoint ${wp}</h4>
+          <hr style="border-top: 1px solid ${borderHex};">
+          <p style="margin: 5px 0;"><b>Ice Depth:</b> ${depth} inches</p>
+          <p style="margin: 5px 0;"><b>Collected:</b> ${dateStr}</p>
+        </div>
+      `;
     }
 
-    // Choose a distinct marker color for 2026 (purple works well & matches your example)
-    var icon_2026 = L.AwesomeMarkers.icon(
-      {"extraClasses":"fa-rotate-0","icon":"info-sign","iconColor":"white","markerColor":"purple","prefix":"glyphicon"}
-    );
+    // =========================
+    // DATE STYLES (markerColor = year/date like last year)
+    // markerColor options include: 'blue','red','green','orange','purple','cadetblue','darkred','darkgreen','darkblue'
+    // =========================
+    const DATE_STYLES_2025 = {
+      "February 10, 2025": { markerColor: "blue",   borderHex: "#007bff", dotHex: "#007bff" },
+      "February 15, 2025": { markerColor: "red",    borderHex: "#dc3545", dotHex: "#dc3545" }
+      // add more 2025 dates here if you have them
+    };
 
-    // Your 2026 points (Feb 15, 2026)
-    var points_2026 = [
-      {wp: 1,  lat: 41.36536, lon: -76.05671, depth: 13.5},
-      {wp: 2,  lat: 41.36458, lon: -76.05599, depth: 13.5},
-      {wp: 3,  lat: 41.36403, lon: -76.05496, depth: 13.5},
-      {wp: 4,  lat: 41.36473, lon: -76.05352, depth: 13.5},
-      {wp: 5,  lat: 41.36655, lon: -76.05417, depth: 11.5},
-      {wp: 6,  lat: 41.36631, lon: -76.05347, depth: 11.5},
-      {wp: 7,  lat: 41.36587, lon: -76.05152, depth: 15.0},
-      {wp: 8,  lat: 41.36670, lon: -76.04930, depth: 13.5},
-      {wp: 9,  lat: 41.36759, lon: -76.05027, depth: 10.5},
-      {wp: 10, lat: 41.36845, lon: -76.05107, depth: 12.5},
-      {wp: 11, lat: 41.36843, lon: -76.04916, depth: 8.5}
-    ];
+    const DATE_STYLES_2026 = {
+      "February 15, 2026": { markerColor: "purple", borderHex: "#7a1fa2", dotHex: "#7a1fa2" }
+      // add more 2026 dates here later
+    };
 
-    points_2026.forEach(function(p){
-      var m = L.marker([p.lat, p.lon], {}).addTo(feature_group_2026_feb15);
-      m.setIcon(icon_2026);
+    // =========================
+    // DATA
+    // NOTE: I included your full 2026 set.
+    // For 2025, paste your full 2025 points into the arrays below (or leave as-is).
+    // =========================
+    const DATA_2025 = {
+      "February 10, 2025": [
+        // PASTE YOUR FULL 2/10/2025 POINTS HERE (example format below)
+        // { wp: 1, lat: 41.36576, lon: -76.05469, depth: 9.0 },
+        // { wp: 2, lat: 41.36581, lon: -76.05458, depth: 10.5 },
+      ],
+      "February 15, 2025": [
+        // PASTE YOUR FULL 2/15/2025 POINTS HERE
+        // { wp: 9,  lat: 41.36496, lon: -76.05551, depth: 11.0 },
+        // { wp: 10, lat: 41.36579, lon: -76.05338, depth: 10.5 },
+      ]
+    };
 
-      var popup = L.popup({"maxWidth": 250});
-      popup.setContent(makePopupHTML(p.wp, p.depth, "February 15, 2026", "#7a1fa2"));
-      m.bindPopup(popup);
-    });
+    const DATA_2026 = {
+      "February 15, 2026": [
+        { wp: 1,  lat: 41.36536, lon: -76.05671, depth: 13.5 },
+        { wp: 2,  lat: 41.36458, lon: -76.05599, depth: 13.5 },
+        { wp: 3,  lat: 41.36403, lon: -76.05496, depth: 13.5 },
+        { wp: 4,  lat: 41.36473, lon: -76.05352, depth: 13.5 },
+        { wp: 5,  lat: 41.36655, lon: -76.05417, depth: 11.5 },
+        { wp: 6,  lat: 41.36631, lon: -76.05347, depth: 11.5 },
+        { wp: 7,  lat: 41.36587, lon: -76.05152, depth: 15.0 },
+        { wp: 8,  lat: 41.36670, lon: -76.04930, depth: 13.5 },
+        { wp: 9,  lat: 41.36759, lon: -76.05027, depth: 10.5 },
+        { wp: 10, lat: 41.36845, lon: -76.05107, depth: 12.5 },
+        { wp: 11, lat: 41.36843, lon: -76.04916, depth: 8.5  }
+      ]
+    };
+
+    // =========================
+    // BUILD LAYERS + MARKERS
+    // =========================
+    const overlays = {};
+    const allBounds = [];
+
+    function addYearData(yearLabel, dateStyles, yearData){
+      Object.keys(yearData).forEach(dateStr => {
+        const fg = L.featureGroup({}).addTo(map);
+        overlays[dateStr] = fg;
+
+        const style = dateStyles[dateStr] || { markerColor: "cadetblue", borderHex: "#6c757d", dotHex: "#6c757d" };
+
+        const icon = L.AwesomeMarkers.icon({
+          extraClasses: "fa-rotate-0",
+          icon: "info-sign",
+          iconColor: "white",
+          markerColor: style.markerColor,
+          prefix: "glyphicon"
+        });
+
+        yearData[dateStr].forEach(p => {
+          const m = L.marker([p.lat, p.lon], {}).addTo(fg);
+          m.setIcon(icon);
+          m.bindPopup(L.popup({ maxWidth: 250 }).setContent(popupHTML(p.wp, p.depth, dateStr, style.borderHex)));
+          allBounds.push([p.lat, p.lon]);
+        });
+      });
+    }
+
+    addYearData("2025", DATE_STYLES_2025, DATA_2025);
+    addYearData("2026", DATE_STYLES_2026, DATA_2026);
+
+    // Top-right layer control (like last year)
+    L.control.layers(
+      { "openstreetmap": osm },
+      overlays,
+      { collapsed: false, position: "topright" }
+    ).addTo(map);
+
+    // Fit bounds if we have points
+    if (allBounds.length) {
+      map.fitBounds(allBounds, { padding: [30, 30] });
+    }
+
+    // =========================
+    // SEPARATE LEGEND BOXES (2025 + 2026)
+    // =========================
+    function makeLegendControl(position, title, dateStyles){
+      const control = L.control({ position });
+      control.onAdd = function(){
+        const div = L.DomUtil.create("div", "legend-box");
+        div.innerHTML += `<div class="legend-title" style="color:#111;">${title}</div>`;
+        Object.keys(dateStyles).forEach(dateStr => {
+          const s = dateStyles[dateStr];
+          div.innerHTML += `
+            <div class="legend-row">
+              <span class="dot" style="background:${s.dotHex};"></span>
+              <span>${dateStr}</span>
+            </div>
+          `;
+        });
+        return div;
+      };
+      return control;
+    }
+
+    // Put them in different corners so they’re clearly separate
+    makeLegendControl("bottomleft", "2025", DATE_STYLES_2025).addTo(map);
+    makeLegendControl("bottomright", "2026", DATE_STYLES_2026).addTo(map);
+
+    // Prevent occasional blank map on load
+    setTimeout(() => map.invalidateSize(), 250);
+  </script>
+</body>
+</html>
