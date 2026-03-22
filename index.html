@@ -172,6 +172,18 @@
     ]
   );
 
+  // ---- NEW: MARCH 2, 2026 ----
+var fg_2026_03_02 = L.featureGroup().addTo(map);
+addDataset(
+  fg_2026_03_02,
+  "darkred", "darkred",
+  "March 2, 2026",
+  [
+    { lat: 41.36456, lng: -76.05706, depth: 13.5 },
+    { lat: 41.36381, lng: -76.05533, depth: 12.0 },
+    { lat: 41.36564, lng: -76.05460, depth: 10.0 }
+  ]
+);
   // ---- LAYER CONTROL ----
   var overlays = {};
   overlays['<span style="color: blue; font-weight: bold;">February 10, 2025</span>'] = fg_2025_02_10;
